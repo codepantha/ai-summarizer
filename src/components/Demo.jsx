@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { linkIcon } from '../assets';
+import { useLazyGetSummaryQuery } from '../services/article';
 
 const Demo = () => {
   const [article, setArticle] = useState({
@@ -7,9 +8,19 @@ const Demo = () => {
     summary: ''
   });
 
-  const handleSubmit = (e) => {
+  const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('submmited');
+    
+    const { data } = await getSummary({ articleUrl: article.url });
+
+    if (data?.summary) {
+      const newArticle = { ...article, summary: data.summary };
+
+      setArticle(newArticle);
+      console.log(newArticle)
+    }
   };
 
   return (
