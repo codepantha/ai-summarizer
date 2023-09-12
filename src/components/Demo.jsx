@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { copy, linkIcon, loader } from '../assets';
+import { copy, linkIcon, loader, tick } from '../assets';
 import { useLazyGetSummaryQuery } from '../services/article';
 
 const Demo = () => {
@@ -7,6 +7,8 @@ const Demo = () => {
     url: '',
     summary: ''
   });
+
+  const [copied, setCopied] = useState('');
 
   const [allArticles, setAllArticles] = useState([]);
 
@@ -35,6 +37,12 @@ const Demo = () => {
       console.log(newArticle);
     }
   };
+
+  const handleCopy = (copyUrl) => {
+    setCopied(copyUrl);
+    navigator.clipboard.writeText(copyUrl)
+    setTimeout(() => setCopied(false), 3000)
+  }
 
   return (
     <section className="mt-16 w-full max-w-xl">
@@ -78,9 +86,9 @@ const Demo = () => {
               onClick={() => setArticle(article)}
               className="link_card"
             >
-              <div className="copy_btn">
+              <div className="copy_btn" onClick={() => handleCopy(article.url)}>
                 <img
-                  src={copy}
+                  src={copied === article.url ? tick : copy}
                   alt="copy_icon"
                   className="w-[40%] h-[40%] object-contain"
                 />
