@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { linkIcon } from '../assets';
+import { copy, linkIcon } from '../assets';
 import { useLazyGetSummaryQuery } from '../services/article';
 
 const Demo = () => {
@@ -8,18 +8,31 @@ const Demo = () => {
     summary: ''
   });
 
+  const [allArticles, setAllArticles] = useState([]);
+
   const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery();
+
+  useEffect(() => {
+    const articlesFromStorage = JSON.parse(localStorage.getItem('articles'));
+
+    if (articlesFromStorage) setAllArticles(articlesFromStorage);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const { data } = await getSummary({ articleUrl: article.url });
 
     if (data?.summary) {
       const newArticle = { ...article, summary: data.summary };
 
+      const updatedArticles = [newArticle, ...allArticles];
+
       setArticle(newArticle);
-      console.log(newArticle)
+      setAllArticles(updatedArticles);
+
+      localStorage.setItem('articles', JSON.stringify(updatedArticles));
+      console.log(newArticle);
     }
   };
 
@@ -58,6 +71,29 @@ const Demo = () => {
         </form>
 
         {/* Browse URL History */}
+        <div className="flex flex-col gap-1 max-h-60 overflow-y-auto">
+          {allArticles.map((article, idx) => (
+            <div
+              key={`link-${idx}`}
+              onClick={() => setArticle(article)}
+              className="link_card"
+            >
+              <div className="copy_btn">
+                <img
+                  src={copy}
+                  alt="copy_icon"
+                  className="w-[40%] h-[40%] object-contain"
+                />
+              </div>
+              <p
+                className="flex-1 font-satoshi text-blue-700
+              text-sm truncate"
+              >
+                {article.url}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
